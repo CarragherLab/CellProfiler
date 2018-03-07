@@ -1,5 +1,4 @@
 import codecs
-import glob
 import os
 import re
 
@@ -21,6 +20,15 @@ def find_version(*pathnames):
         return matched.group(1)
 
     raise RuntimeError("Unable to find version string.")
+
+
+def find_resources(directory, subdirectory):
+    resources = []
+    for root, _, filenames in os.walk(os.path.join(directory, subdirectory)):
+        resources += [os.path.relpath(os.path.join(root, filename), directory) for filename in filenames]
+
+    return resources
+
 
 setuptools.setup(
     author="cellprofiler-dev",
@@ -51,6 +59,7 @@ setuptools.setup(
         ]
     },
     install_requires=[
+        "boto3",
         "centrosome",
         "docutils",
         "h5py",
@@ -61,8 +70,8 @@ setuptools.setup(
         "matplotlib>=2.0.0, !=2.1.0",
         "MySQL-python",
         "numpy",
-        "prokaryote==2.3.2",
-        "python-bioformats==1.3.1",
+        "prokaryote==2.3.3",
+        "python-bioformats==1.4.0",
         "pyzmq==15.3.0",
         "raven",
         "requests",
@@ -73,7 +82,7 @@ setuptools.setup(
     license="BSD",
     name="CellProfiler",
     package_data={
-        "cellprofiler": [os.path.join("data", "**", "*")]
+        "cellprofiler": find_resources("cellprofiler", "data")
     },
     include_package_data=True,
     packages=setuptools.find_packages(exclude=[
